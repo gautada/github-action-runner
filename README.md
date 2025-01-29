@@ -4,8 +4,17 @@ A preconfigured action runner for checkin webhook.
 
 [ghcr.io/actions/runner](https://github.com/actions/runner)
 
+GITHUB_PERSONAL_ACCESS_TOKEN Expires Mon, Apr 28, 2025
+
 - **Verson**: v2.332.0
 - **BUILD BASE**: mcr.microsoft.com/dotnet/sdk:8.0-alpine
+
+To `build` container using podman that uses a .env file use `--build-arg-file=./.env`, to do that with the `run` use `--env-file=file`
+
+`--authfile=path`
+
+https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-a-repository
+
 
 That DevOps Guy
 Reference: https://youtu.be/RcHGqCBofvw?si=yPcCMiGA27ubLpKT
