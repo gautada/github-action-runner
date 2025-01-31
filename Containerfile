@@ -1,7 +1,8 @@
 FROM docker.io/ubuntu:24.04
 # FROM debian:bookworm-slim
 
-RUN /usr/bin/apt-get update --yes \ 
+RUN /usr/bin/apt-get update --yes \
+ && /usr/bin/apt-get upfrade --yes \
  && /usr/bin/apt-get install --yes curl jq nano sudo unzip \
  && /usr/bin/apt-get install --yes libicu74 libssl3t64 
 
