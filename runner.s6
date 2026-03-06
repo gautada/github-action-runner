@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# s6 service: registers and starts the GitHub Actions self-hosted runner.
+#
+# Required environment variables (supply via --env-file or -e):
+#   GITHUB_OWNER              — GitHub org or user (e.g. gautada)
+#   GITHUB_REPOSITORY         — Repository name (e.g. myrepo), or omit for org-level runner
+#   GITHUB_PERSONAL_ACCESS_TOKEN — PAT with admin:org or repo scope for token exchange
+#
+# Optional:
+#   RUNNER_LABELS             — Comma-separated extra labels (default: debian,uv)
+#   RUNNER_NAME               — Runner name (default: hostname)
+
+set -e
+
+OWNER="${GITHUB_OWNER:?GITHUB_OWNER must be set}"
+PAT="${GITHUB_PERSONAL_ACCESS_TOKEN:?GITHUB_PERSONAL_ACCESS_TOKEN must be set}"
+LABELS="${RUNNER_LABELS:-debian,uv}"
+NAME="${RUNNER_NAME:-$(hostname)}"
+
+if [ -n "${GITHUB_REPOSITORY:-}" ]; then
+  REG_URL="https://api.github.com/repos/${OWNER}/${GITHUB_REPOSITORY}/actions/runners/registration-token"
+  RUNNER_URL="https://github.com/${OWNER}/${GITHUB_REPOSITORY}"
+else
+  REG_URL="https://api.github.com/orgs/${OWNER}/actions/runners/registration-token"
+  RUNNER_URL="https://github.com/${OWNER}"
+fi
+
+echo "Requesting registration token from ${REG_URL}"
+TOKEN=$(curl -fsSX POST \
+  -H "Authorization: token ${PAT}" \
+  -H "Accept: application/vnd.github+json" \
+  "${REG_URL}" | jq -r '.token')
+
+if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+  echo "ERROR: failed to obtain runner registration token" >&2
+  exit 1
+fi
+
+/opt/github-actions-runner/config.sh \
+  --name "$NAME" \
+  --token "$TOKEN" \
+  --labels "$LABELS" \
+  --url "$RUNNER_URL" \
+  --work "/mnt/volumes/data/.work" \
+  --unattended \
+  --replace
+
+exec /opt/github-actions-runner/run.sh
