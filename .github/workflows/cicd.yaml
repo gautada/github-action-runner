@@ -1,4 +1,3 @@
----
 name: "Continuous Integration: Build and Publish Multi-Architecture Container Images"
 # This is the generic reusable template for building containers
 

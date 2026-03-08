@@ -1,37 +1,36 @@
 # github-action-runner
 
-GitHub Actions self-hosted runner container based on `gautada/debian`.
+GitHub Actions self-hosted runner container built on `gautada/debian`.
 
-## Overview
+## Features
 
-A plain, minimal self-hosted runner image. No language toolchains or
-additional runtimes are included by design. Language-specific runners
-(e.g., Python + uv + devpi) will be separate images built on top of
-this base.
+- Debian 13 (trixie) base via `gautada/debian`
+- GitHub Actions Runner agent (latest stable, auto-resolved at build time)
+- `uv` — Python toolchain (resolve, install, build, publish)
+- devpi pre-configured as the default Python index via `UV_INDEX_URL`
+- Standard gautada container health scripts
+- s6 process supervision
 
 ## Usage
 
-Run with the required environment variables:
-
-```shell
-docker run \
-  -e RUNNER_URL=https://github.com/your-org/your-repo \
-  -e RUNNER_TOKEN=your-registration-token \
-  gautada/github-action-runner:latest
+```sh
+podman run -d \
+  -e GITHUB_OWNER=gautada \
+  -e GITHUB_REPOSITORY=myrepo \
+  -e GITHUB_PERSONAL_ACCESS_TOKEN=ghp_xxx \
+  -v runner-data:/mnt/volumes/data \
+  docker.io/gautada/github-action-runner:latest
 ```
 
-### Environment Variables
+Set `GITHUB_REPOSITORY` for repo-scoped runners or omit for org-level runners.
 
-- `RUNNER_URL` — The URL of the repository or organization to register with.
-- `RUNNER_TOKEN` — A short-lived registration token obtained from GitHub.
+## Environment Variables
 
-## Health Checks
-
-- `appversion-check` — Compares the running runner version against the
-  latest release on GitHub.
-- `runner-running` — Verifies the `Runner.Listener` process is active.
-
-## References
-
-- [GitHub Actions Runner](https://github.com/actions/runner)
-- [Creating a registration token](https://docs.github.com/en/rest/actions/self-hosted-runners)
+| Variable | Required | Description |
+| --- | --- | --- |
+| `GITHUB_OWNER` | Yes | GitHub org or user |
+| `GITHUB_REPOSITORY` | No | Repo name (omit for org runner) |
+| `GITHUB_PERSONAL_ACCESS_TOKEN` | Yes | PAT with `admin:org` or repo scope |
+| `RUNNER_LABELS` | No | Extra labels (default: `debian,uv`) |
+| `RUNNER_NAME` | No | Runner name (default: hostname) |
+| `UV_INDEX_URL` | No | Override devpi index URL |
