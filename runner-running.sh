@@ -1,14 +1,12 @@
 #!/bin/sh
-SENTINEL="/run/github-runner/test-mode"
-
-if [ -f "${SENTINEL}" ]; then
-  echo "GitHub Actions runner is in CI test mode; skipping process check."
-  exit 0
-fi
+#
+# Health check: verifies the GitHub Actions runner listener process is active.
+# Returns 0 if running, non-zero otherwise.
 
 if pgrep -f "Runner.Listener" > /dev/null 2>&1; then
+  echo "runner-running: Runner.Listener is active"
   exit 0
 fi
 
-echo "GitHub Actions runner process not found"
+echo "runner-running: Runner.Listener process not found"
 exit 1
