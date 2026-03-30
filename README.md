@@ -1,2 +1,9 @@
 # github-action-runner-container
-A preconfigured action runner for checkin webhook.
+
+Modernized GitHub Actions self-hosted runner.
+
+## Features
+
+- Base: `gautada/debian`
+- Tooling: `uv` (pre-configured with `devpi`)
+- Supervision: `s6`
